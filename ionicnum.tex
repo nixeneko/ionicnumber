@@ -1,0 +1,104 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{polyglossia}
+%\setdefaultlanguage{english}
+\usepackage{xltxtra}
+\usepackage{xunicode}
+\setmainfont{Times New Roman}
+\newfontfamily\greekfont[Script=Greek]{Times New Roman}
+\setotherlanguages{greek}
+
+
+\makeatletter
+\def\@modten#1{%
+  \newcount\@rslt\newcount\@tmp%
+  \@rslt=#1\@tmp=#1\relax
+  \divide\@tmp10%
+  \multiply\@tmp10%
+  \advance\@rslt-\@tmp%
+  #1=\@rslt%
+  \relax%
+}
+
+\def\ionicnum@lt@tenthousand#1{%
+  \newcount\digit@one \newcount\digit@ten \newcount\digit@hundred \newcount\digit@thousand%
+  \digit@one=#1\digit@ten=#1\digit@hundred=#1\digit@thousand=#1\relax
+  \@modten\digit@one%
+  \divide\digit@ten10\relax
+  \@modten\digit@ten%
+  \divide\digit@hundred100\relax
+  \@modten\digit@hundred%
+  \divide\digit@thousand1000\relax
+  \@modten\digit@thousand%
+  \ifcase\digit@thousand {}\or {͵α}\or {͵β}\or {͵γ}\or {͵δ}\or {͵ε}\or {͵ϛ}\or {͵ζ}\or {͵η}\or {͵θ}\else\@ctrerr\fi%
+  \ifcase\digit@hundred {}\or {ρ}\or {σ}\or {τ}\or {υ}\or {φ}\or {χ}\or {ψ}\or {ω}\or {ϡ}\else\@ctrerr\fi%
+  \ifcase\digit@ten {}\or {ι}\or {κ}\or {λ}\or {μ}\or {ν}\or {ξ}\or {ο}\or {π}\or {ϟ}\else\@ctrerr\fi%
+  \ifcase\digit@one {}\or {α}\or {β}\or {γ}\or {δ}\or {ε}\or {ϛ}\or {ζ}\or {η}\or {θ}\else\@ctrerr\fi%
+  \relax
+}
+
+\def\ionicnum@myriad#1{%
+  \ifnum#1=1\relax
+    Μ%
+  \else%
+      \(\stackrel{\text{\ionicnum@lt@tenthousand{#1}}}{\text{Μ}}\)%
+  \fi%
+}
+\newcount\ionum@gett@num \newcount\ionum@gett@div \newcount\ionum@gett@mod \newcount\ionum@gett@tmp%
+\def\ionicnum@ge@tenthousand#1{%
+  \ionum@gett@num=#1\ionum@gett@div=#1\ionum@gett@mod=#1\relax%
+  \ionicnum@ge@tenthousand@loop%
+}
+\def\ionicnum@ge@tenthousand@loop{%
+  \divide\ionum@gett@div10000\relax%
+  \ionum@gett@tmp=\ionum@gett@div%
+  \multiply\ionum@gett@tmp10000\relax%
+  \advance\ionum@gett@mod-\ionum@gett@tmp\relax%
+  \ifnum\ionum@gett@num>9999\relax%
+    \expandafter\ionicnum@ge@tenthousand\expandafter{\expandafter\the\expandafter\ionum@gett@div\expandafter}%
+    \expandafter\ionicnum@myriad\expandafter{\the\ionum@gett@mod}%
+  \else%
+    \ionicnum@myriad{\the\ionum@gett@mod}%
+  \fi%
+  \relax%
+}
+
+\def\ionicnum#1{%
+  \newcount\ionum@tmp%
+  \ionum@tmp=#1\relax
+  \ifnum#1>9999\relax
+    \divide\ionum@tmp10000\relax%
+    \ionicnum@ge@tenthousand{\the\ionum@tmp}\ionicnum@lt@tenthousand{#1}ʹ%
+  \else%
+    \ifnum#1>0\relax
+      \ionicnum@lt@tenthousand{#1}ʹ%
+    \fi%
+  \fi%
+  \relax
+}
+\makeatother
+
+
+
+\begin{document}
+
+%\newcommand*{\grk}[1]{\begin{greek}#1\end{greek}${}_{\text{G}}$}
+
+\newcommand{\macrotest}[1]{
+  code: \textbackslash\texttt{ionicnum\{#1\}}\par
+  output: \begin{greek}\ionicnum{#1}\end{greek}\par\vspace{2mm}
+}
+
+
+\macrotest{0}
+\macrotest{1}
+\macrotest{20}
+\macrotest{1234}
+\macrotest{2048}
+\macrotest{10000}
+\macrotest{111111}
+\macrotest{100000000}
+\macrotest{1234567890}
+
+\end{document}
